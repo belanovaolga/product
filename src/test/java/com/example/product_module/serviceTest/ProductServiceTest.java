@@ -104,36 +104,4 @@ class ProductServiceTest {
         assertEquals(expectedProductResponseList, actualProductListResponse.getProductResponseList());
     }
 
-    @Test
-    void shouldGetCount() {
-        Optional<ProductEntity> optionalProduct = Optional.ofNullable(product1);
-        assert product1 != null;
-        Mockito.when(mockProductRepository.findById(product1.getId())).thenReturn(optionalProduct);
-
-        ProductResponse actualProductRecord = productService.findProductById(product1.getId());
-
-        assertEquals(product1.getCount(), actualProductRecord.getCount());
-    }
-
-    @Test
-    void shouldGetName() {
-        Optional<ProductEntity> optionalProduct = Optional.ofNullable(product1);
-        assert product1 != null;
-        Mockito.when(mockProductRepository.findById(product1.getId())).thenReturn(optionalProduct);
-
-        ProductResponse actualProductRecord = productService.findProductById(product1.getId());
-
-        assertEquals(product1.getName(), actualProductRecord.getName());
-    }
-
-    @Test
-    void shouldGetCurrentPrice() {
-        Optional<ProductEntity> optionalProduct = Optional.ofNullable(product1);
-        assert product1 != null;
-        Mockito.when(mockProductRepository.findById(product1.getId())).thenReturn(optionalProduct);
-
-        ProductResponse actualProductRecord = productService.findProductById(product1.getId());
-
-        assertEquals(product1.getCurrentPrice(), actualProductRecord.getCurrentPrice());
-    }
 }

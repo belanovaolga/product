@@ -6,11 +6,13 @@ import com.example.product_module.model.ProductEntity;
 import com.example.product_module.model.request.IdRequest;
 import com.example.product_module.model.request.ProductCreateRequest;
 import com.example.product_module.model.response.PersonalOfferResponse;
+import com.example.product_module.model.response.ProductCountDto;
 import com.example.product_module.model.response.ProductListResponse;
 import com.example.product_module.model.response.ProductResponse;
 import com.example.product_module.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Comparator;
 import java.util.List;
@@ -21,6 +23,7 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
 
+    @Transactional
     public ProductResponse createProduct(ProductCreateRequest productCreateRequest) {
         ProductEntity productEntity = productRepository.save(
                 ProductEntity.builder()
@@ -68,6 +71,23 @@ public class ProductService {
 
     public PersonalOfferResponse getPOForNoOrders() {
         return twoMaxCountProducts(findAll());
+    }
+
+    @Transactional
+    public void updateProductCount(ProductCountDto productCountDto) {
+        ProductEntity product = findById(productCountDto.getProductId());
+
+        Long currentCount = product.getCount();
+        Long updateCount = productCountDto.getCount();
+
+        if(Boolean.TRUE.equals(productCountDto.getDeleteProduct())) {
+            currentCount -= updateCount;
+        } else {
+            currentCount += updateCount;
+        }
+
+        product.setCount(currentCount);
+        productRepository.save(product);
     }
 
     private ProductEntity findById(Long id) {

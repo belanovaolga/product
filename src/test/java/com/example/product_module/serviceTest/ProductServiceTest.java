@@ -3,7 +3,10 @@ package com.example.product_module.serviceTest;
 import com.example.product_module.exception.ProductNotFound;
 import com.example.product_module.mapper.ProductMapper;
 import com.example.product_module.model.ProductEntity;
+import com.example.product_module.model.request.IdRequest;
 import com.example.product_module.model.request.ProductCreateRequest;
+import com.example.product_module.model.response.PersonalOfferResponse;
+import com.example.product_module.model.response.ProductCountDto;
 import com.example.product_module.model.response.ProductListResponse;
 import com.example.product_module.model.response.ProductResponse;
 import com.example.product_module.repository.ProductRepository;
@@ -104,4 +107,92 @@ class ProductServiceTest {
         assertEquals(expectedProductResponseList, actualProductListResponse.getProductResponseList());
     }
 
+    @Test
+    void shouldGetPersonalOffer_whenOneOrder() {
+        List<ProductEntity> productResponseList = new ArrayList<>();
+        productResponseList.add(product1);
+        PersonalOfferResponse expectedPersonalOffer = PersonalOfferResponse.builder().personalOfferList(productResponseList).build();
+
+        List<Long> productIdList = new ArrayList<>();
+        productIdList.add(product2.getId());
+        productIdList.add(productNew.getId());
+        IdRequest idRequest = IdRequest.builder().productIdList(productIdList).build();
+        List<ProductEntity> allProductEntityList = new ArrayList<>();
+        allProductEntityList.add(product1);
+        allProductEntityList.add(product2);
+        allProductEntityList.add(productNew);
+        Mockito.when(mockProductRepository.findAll()).thenReturn(allProductEntityList);
+
+        PersonalOfferResponse actualPersonalOffer = productService.getPersonalOffer(idRequest);
+
+        assertEquals(expectedPersonalOffer, actualPersonalOffer);
+    }
+
+    @Test
+    void shouldGetPersonalOffer_whenTwoOrders() {
+        List<ProductEntity> productResponseList = new ArrayList<>();
+        productResponseList.add(product1);
+        productResponseList.add(product2);
+        PersonalOfferResponse expectedPersonalOffer = PersonalOfferResponse.builder().personalOfferList(productResponseList).build();
+
+        List<Long> productIdList = new ArrayList<>();
+        productIdList.add(productNew.getId());
+        IdRequest idRequest = IdRequest.builder().productIdList(productIdList).build();
+        List<ProductEntity> allProductEntityList = new ArrayList<>();
+        allProductEntityList.add(product1);
+        allProductEntityList.add(product2);
+        allProductEntityList.add(productNew);
+        Mockito.when(mockProductRepository.findAll()).thenReturn(allProductEntityList);
+
+        PersonalOfferResponse actualPersonalOffer = productService.getPersonalOffer(idRequest);
+
+        assertEquals(expectedPersonalOffer, actualPersonalOffer);
+    }
+
+    @Test
+    void shouldGetPOForNoOrders() {
+        List<ProductEntity> productResponseList = new ArrayList<>();
+        productResponseList.add(productNew);
+        productResponseList.add(product1);
+        PersonalOfferResponse expectedPersonalOffer = PersonalOfferResponse.builder().personalOfferList(productResponseList).build();
+
+        List<ProductEntity> allProductEntityList = new ArrayList<>();
+        allProductEntityList.add(product1);
+        allProductEntityList.add(product2);
+        allProductEntityList.add(productNew);
+        Mockito.when(mockProductRepository.findAll()).thenReturn(allProductEntityList);
+
+        PersonalOfferResponse actualPersonalOffer = productService.getPOForNoOrders();
+
+        assertEquals(expectedPersonalOffer, actualPersonalOffer);
+    }
+
+
+    @Test
+    void shouldUpdateProductCount_whenDeleteProduct() {
+        ProductCountDto productCountDto = ProductCountDto.builder().productId(product1.getId()).count(2L).deleteProduct(true).build();
+
+        ProductEntity updatedProduct = ProductEntity.builder().id(1L).name("lemon").description("yellow, sour").count(63L).currentPrice(87.5).build();
+        Optional<ProductEntity> optionalProduct = Optional.of(product1);
+        Mockito.when(mockProductRepository.findById(product1.getId())).thenReturn(optionalProduct);
+        Mockito.when(mockProductRepository.save(updatedProduct)).thenReturn(updatedProduct);
+
+        productService.updateProductCount(productCountDto);
+
+        assertEquals(product1.getCount(), updatedProduct.getCount());
+    }
+
+    @Test
+    void shouldUpdateProductCount_whenNotDeleteProduct() {
+        ProductCountDto productCountDto = ProductCountDto.builder().productId(product1.getId()).count(2L).deleteProduct(false).build();
+
+        ProductEntity updatedProduct = ProductEntity.builder().id(1L).name("lemon").description("yellow, sour").count(67L).currentPrice(87.5).build();
+        Optional<ProductEntity> optionalProduct = Optional.of(product1);
+        Mockito.when(mockProductRepository.findById(product1.getId())).thenReturn(optionalProduct);
+        Mockito.when(mockProductRepository.save(updatedProduct)).thenReturn(updatedProduct);
+
+        productService.updateProductCount(productCountDto);
+
+        assertEquals(product1.getCount(), updatedProduct.getCount());
+    }
 }
